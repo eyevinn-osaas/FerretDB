@@ -16,3 +16,6 @@
 # additional files for Docker images
 !build/ferretdb
 !build/postgres-documentdb
+
+# OSC adaptation
+!osc-entrypoint.sh

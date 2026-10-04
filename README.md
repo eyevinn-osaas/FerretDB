@@ -118,3 +118,13 @@ See [there](https://pkg.go.dev/github.com/FerretDB/FerretDB/v2/build/version) fo
 - [GitHub Issues](https://github.com/FerretDB/FerretDB/issues) for bugs and missing features.
 
 If you want to contact FerretDB Inc., please use [this form](https://www.ferretdb.com/contact/).
+
+## OSC (Eyevinn Open Source Cloud) adaptation
+
+`Dockerfile.osc` and `osc-entrypoint.sh` package FerretDB v2 as a service on [Eyevinn Open Source Cloud](https://www.osaas.io).
+FerretDB is only a MongoDB wire protocol frontend; it needs the OSC **Postgres + DocumentDB** service as its backend.
+
+- Set `FERRETDB_POSTGRESQL_URL=postgres://postgres:<password>@<postgres-host>:5432/postgres` (database name must be `postgres`), or set `POSTGRES_HOST`, `POSTGRES_PASSWORD` (and optionally `POSTGRES_PORT`, `POSTGRES_USER`) and the URL is built for you.
+- MongoDB clients connect on port 27017 with `mongodb://postgres:<password>@<ferretdb-host>:27017/` (authentication reuses the PostgreSQL users).
+- Port 8080 serves FerretDB's debug HTTP server (`/debug/livez`, `/debug/readyz`) used for health probes.
+- Optional: `FERRETDB_AUTH`, `FERRETDB_LOG_LEVEL`. Telemetry is disabled by default.

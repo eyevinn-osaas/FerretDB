@@ -1,0 +1,26 @@
+# OSC adaptation of FerretDB v2 (MongoDB wire protocol frontend for PostgreSQL + DocumentDB)
+FROM ghcr.io/ferretdb/ferretdb:2.7.0 AS source
+
+FROM debian:bookworm-slim
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 1000 ferretdb \
+    && useradd --system --uid 1000 --gid ferretdb --no-create-home --shell /usr/sbin/nologin ferretdb \
+    && mkdir -p /state \
+    && chown ferretdb:ferretdb /state
+
+# Statically linked Go binary, no libc dependency
+COPY --from=source --chmod=755 /ferretdb /ferretdb
+COPY --chmod=755 osc-entrypoint.sh /usr/local/bin/osc-entrypoint.sh
+
+ENV FERRETDB_LISTEN_ADDR=:27017 \
+    FERRETDB_DEBUG_ADDR=:8080 \
+    FERRETDB_STATE_DIR=/state \
+    FERRETDB_TELEMETRY=disable
+
+USER ferretdb
+WORKDIR /state
+EXPOSE 27017 8080
+ENTRYPOINT ["/usr/local/bin/osc-entrypoint.sh"]
+CMD []
